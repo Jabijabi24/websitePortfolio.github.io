@@ -1,27 +1,3 @@
-// Smooth Scrolling for Navigation Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const navHeight = document.querySelector('.navbar').offsetHeight;
-            const targetPosition = target.offsetTop - navHeight;
-            
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-
-            // Close mobile menu if open
-            const navMenu = document.querySelector('.nav-menu');
-            if (navMenu.classList.contains('active')) {
-                navMenu.classList.remove('active');
-            }
-        }
-    });
-});
-
-// Mobile Menu Toggle
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
@@ -73,3 +49,86 @@ window.addEventListener('scroll', () => {
 
 // Add smooth scroll behavior to the entire document
 document.documentElement.style.scrollBehavior = 'smooth';
+
+// Project Carousel Functionality
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-slide');
+const indicators = document.querySelectorAll('.indicator');
+const totalSlides = slides.length;
+
+function showSlide(index) {
+    // Remove active class from all slides
+    slides.forEach(slide => slide.classList.remove('active'));
+    indicators.forEach(indicator => indicator.classList.remove('active'));
+    
+    // Wrap around if index is out of bounds
+    if (index >= totalSlides) {
+        currentSlide = 0;
+    } else if (index < 0) {
+        currentSlide = totalSlides - 1;
+    } else {
+        currentSlide = index;
+    }
+    
+    // Add active class to current slide
+    slides[currentSlide].classList.add('active');
+    indicators[currentSlide].classList.add('active');
+}
+
+// Next/Previous buttons
+document.querySelector('.carousel-btn-next').addEventListener('click', () => {
+    showSlide(currentSlide + 1);
+});
+
+document.querySelector('.carousel-btn-prev').addEventListener('click', () => {
+    showSlide(currentSlide - 1);
+});
+
+// Indicator buttons
+indicators.forEach((indicator, index) => {
+    indicator.addEventListener('click', () => {
+        showSlide(index);
+    });
+});
+
+// Auto-play carousel (optional - uncomment to enable)
+/*
+setInterval(() => {
+    showSlide(currentSlide + 1);
+}, 5000); // Change slide every 5 seconds
+*/
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+        showSlide(currentSlide - 1);
+    } else if (e.key === 'ArrowRight') {
+        showSlide(currentSlide + 1);
+    }
+});
+
+// Touch/Swipe support for mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+const carouselWrapper = document.querySelector('.carousel-wrapper');
+
+carouselWrapper.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+carouselWrapper.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    if (touchEndX < touchStartX - 50) {
+        // Swipe left
+        showSlide(currentSlide + 1);
+    }
+    if (touchEndX > touchStartX + 50) {
+        // Swipe right
+        showSlide(currentSlide - 1);
+    }
+}
